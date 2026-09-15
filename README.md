@@ -2,7 +2,7 @@
 
 My personal Data Structures & Algorithms practice repo  implemented in C
 
-Every solution is written by hand in C (no external DSA libraries) so that implementing the structure — not just calling it — is the point.
+Every solution is written by hand in C (no external DSA libraries) so that implementing the structure not just calling it  is the point.
 
 ## How this repo is organized
 
