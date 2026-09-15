@@ -1,6 +1,6 @@
 # dsa-journey-c
 
-My personal Data Structures & Algorithms practice repo — implemented in C, alongside AUCA's DSA course (Dr. Serge MBARAGA, Faculty of Information Technology).
+My personal Data Structures & Algorithms practice repo  implemented in C
 
 Every solution is written by hand in C (no external DSA libraries) so that implementing the structure — not just calling it — is the point.
 
@@ -43,8 +43,6 @@ gcc -Wall -Wextra -std=c11 -o solution 01-arrays-strings/binary_search.c
 
 ## Progress log
 
-Update this as you go — it becomes a nice record for revision before exams.
-
 - [x] Chapter 1 notes summarized
 - [x] Chapter 2 notes summarized
 - [x] Linear search implemented + analyzed
@@ -65,4 +63,4 @@ Update this as you go — it becomes a nice record for revision before exams.
 - [freeCodeCamp — Data Structures Full Course (C/C++)](https://www.youtube.com/watch?v=B31LgI4Y4DQ) — video walkthroughs
 
 ---
-*Author: Ruth Umwizerwa · Adventist University of Central Africa (AUCA)*
+*Author: Ruth Umwizerwa*
