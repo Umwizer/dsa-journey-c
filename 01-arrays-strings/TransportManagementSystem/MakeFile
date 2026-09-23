@@ -1,0 +1,14 @@
+CC = gcc
+CFLAGS = -Wall -std=c11
+TARGET = transport
+
+SRCS = main.c array_ops.c matrix_ops.c string_ops.c linear_search.c binary_search.c
+
+$(TARGET): $(SRCS) transport.h
+	$(CC) $(CFLAGS) -o $(TARGET) $(SRCS)
+
+run: $(TARGET)
+	./$(TARGET)
+
+clean:
+	rm -f $(TARGET) $(TARGET).exe
