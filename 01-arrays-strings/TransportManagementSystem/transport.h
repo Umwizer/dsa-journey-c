@@ -4,7 +4,7 @@
 #define MAX 50
 #define NAME_LEN 30
 #define PLATE_LEN 15
-#define MONTH
+#define MONTHS 6
 
 typedef struct {
     char plateNumber[PLATE_LEN];
