@@ -5,7 +5,6 @@
 #define NAME_LEN 30
 #define PLATE_LEN 15
 #define MONTHS 6
-
 typedef struct {
     char plateNumber[PLATE_LEN];
     char routeName[NAME_LEN];
