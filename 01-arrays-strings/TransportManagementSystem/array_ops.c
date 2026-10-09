@@ -3,67 +3,78 @@
 #include <stdlib.h>
 #include "transport.h"
 
+// reads one full line (works with spaces)
 static void readLine(char *buffer, int size) {
     fgets(buffer, size, stdin);
-    size_t len = strlen(buffer);
-    if (len >  0 && buffer[len - 1] == '\n') {
-        buffer[len - 1] = '\0';
-    }
+    buffer[strcspn(buffer, "\n")] = '\0';   // remove the enter key
 }
 
+// 01. Basic input and output
 void addBuses(void) {
     char temp[50];
     int n;
-    printf("Enter number of buses to add (max %d): ", MAX - busCount);
+
+    printf("How many buses do you want to add (max %d)? ", MAX - busCount);
     readLine(temp, sizeof(temp));
     n = atoi(temp);
-    if (n <= 0 || n > (MAX - busCount)) {
-        printf("Invalid number of buses. Please try again.\n");
+
+    if (n <= 0 || n > MAX - busCount) {
+        printf("Invalid number of buses.\n");
         return;
     }
+
     for (int i = 0; i < n; i++) {
-        printf("Enter details for bus %d:\n", busCount + 1);
-        printf("Plate Number: ");
+        printf("\nBus %d\n", busCount + 1);
+
+        printf("Plate number: ");
         readLine(fleet[busCount].plateNumber, PLATE_LEN);
-        printf("Route Name: ");
+
+        printf("Route name: ");
         readLine(fleet[busCount].routeName, NAME_LEN);
-        printf("Driver Name: ");
+
+        printf("Driver name: ");
         readLine(fleet[busCount].driverName, NAME_LEN);
+
         printf("Capacity: ");
         readLine(temp, sizeof(temp));
         fleet[busCount].capacity = atoi(temp);
+
         printf("Fare: ");
         readLine(temp, sizeof(temp));
-        fleet[busCount].fare = (float)atof(temp);
+        fleet[busCount].fare = atof(temp);
+
         busCount++;
     }
-    printf("\nFleet size is now: %d\n", busCount);
+    printf("\nNumber of buses in the fleet: %d\n", busCount);
 }
 
-void displayFleet(void){
-    if(busCount == 0){
-        printf("No buses in the fleet.\n");
+void displayFleet(void) {
+    if (busCount == 0) {
+        printf("The fleet is empty.\n");
         return;
     }
-    printf("\nCurrent Fleet:\n");
-    printf("%-15s %-30s %-30s %-10s %-10s\n", "Plate Number", "Route Name", "Driver Name", "Capacity", "Fare");
-    for(int i = 0; i < busCount; i++){
-        printf("%-15s %-30s %-30s %-10d %-10.2f\n",
-               fleet[i].plateNumber,
-               fleet[i].routeName,
-               fleet[i].driverName,
-               fleet[i].capacity,
-               fleet[i].fare);
+    printf("\n%-4s %-12s %-22s %-20s %-8s %-8s\n",
+           "No", "Plate", "Route", "Driver", "Seats", "Fare");
+    for (int i = 0; i < busCount; i++) {
+        printf("%-4d %-12s %-22s %-20s %-8d %-8.2f\n", i,
+               fleet[i].plateNumber, fleet[i].routeName,
+               fleet[i].driverName, fleet[i].capacity, fleet[i].fare);
     }
 }
 
-//02. Array Statistics
+// 02. Statistics on the fares
 void fareStatistics(void) {
-    if (busCount == 0) { printf("Fleet is empty.\n"); return; }
+    if (busCount == 0) {
+        printf("The fleet is empty.\n");
+        return;
+    }
 
-    float total = 0, max = fleet[0].fare, min = fleet[0].fare;
+    float total = 0;
+    float max = fleet[0].fare;
+    float min = fleet[0].fare;
+
     for (int i = 0; i < busCount; i++) {
-        total += fleet[i].fare;
+        total = total + fleet[i].fare;
         if (fleet[i].fare > max) max = fleet[i].fare;
         if (fleet[i].fare < min) min = fleet[i].fare;
     }
@@ -72,84 +83,103 @@ void fareStatistics(void) {
     int above = 0, below = 0;
     for (int i = 0; i < busCount; i++) {
         if (fleet[i].fare > average) above++;
-        else if (fleet[i].fare < average) below++;
+        if (fleet[i].fare < average) below++;
     }
 
-    printf("\nTotal fares : %.2f\n", total);
-    printf("Average fare: %.2f\n", average);
-    printf("Highest fare: %.2f\n", max);
-    printf("Lowest fare : %.2f\n", min);
-    printf("Buses above average: %d\n", above);
-    printf("Buses below average: %d\n", below);
+    printf("\nTotal   : %.2f\n", total);
+    printf("Average : %.2f\n", average);
+    printf("Highest : %.2f\n", max);
+    printf("Lowest  : %.2f\n", min);
+    printf("Above average: %d\n", above);
+    printf("Below average: %d\n", below);
 }
 
-//03. Array Traversal (Fixed nested loop bug)
-void traverseFleet(void){
-    if(busCount == 0){
-        printf("No buses in the fleet to traverse.\n");
+// 03. Traversal
+void traverseFleet(void) {
+    if (busCount == 0) {
+        printf("The fleet is empty.\n");
         return;
     }
-    printf("\nForward traversal:\n");
-    for(int i = 0; i < busCount; i++){
-         printf("[%d] %s - %s\n", i, fleet[i].plateNumber, fleet[i].routeName);
+
+    printf("\nFirst to last:\n");
+    for (int i = 0; i < busCount; i++) {
+        printf("[%d] %s - %s\n", i, fleet[i].plateNumber, fleet[i].routeName);
     }
-    
-    printf("\nBackward traversal:\n");
-    for(int i = busCount - 1; i >= 0; i--){
-         printf("[%d] %s - %s\n", i, fleet[i].plateNumber, fleet[i].routeName);
+
+    printf("\nLast to first:\n");
+    for (int i = busCount - 1; i >= 0; i--) {
+        printf("[%d] %s - %s\n", i, fleet[i].plateNumber, fleet[i].routeName);
     }
 }
 
-//04. Array Insertion
-void insertBus(int pos , Bus newBus){
-    if(busCount >= MAX){
-        printf("Fleet is full. Cannot insert new bus.\n");
+// 04. Insertion
+void insertBus(int pos, Bus newBus) {
+    if (busCount >= MAX) {
+        printf("The fleet is full.\n");
         return;
     }
-    if(pos < 0 || pos > busCount){
-        printf("Invalid position. Please try again.\n");
+    if (pos < 0 || pos > busCount) {
+        printf("Invalid position.\n");
         return;
     }
-    for(int i = busCount; i > pos; i--){
+
+    printf("\nBefore insertion:");
+    displayFleet();
+
+    // move everything from pos one step to the right
+    for (int i = busCount; i > pos; i--) {
         fleet[i] = fleet[i - 1];
     }
     fleet[pos] = newBus;
     busCount++;
-    printf("Bus inserted at position %d.\n", pos);
+
+    printf("\nAfter insertion:");
+    displayFleet();
 }
 
-//05. Array Deletion
-void deleteBus(int pos){
-    if(busCount == 0){
-        printf("Fleet is empty. Cannot delete bus.\n");
+// 05. Deletion
+void deleteBus(int pos) {
+    if (pos < 0 || pos >= busCount) {
+        printf("Invalid position.\n");
         return;
     }
-    if(pos < 0 || pos >= busCount){
-        printf("Invalid position. Please try again.\n");
-        return;
-    }
-    for(int i = pos; i < busCount - 1; i++){
+
+    printf("\nBefore deletion:");
+    displayFleet();
+
+    printf("\nDeleting bus %s\n", fleet[pos].plateNumber);
+
+    // move everything after pos one step to the left
+    for (int i = pos; i < busCount - 1; i++) {
         fleet[i] = fleet[i + 1];
     }
     busCount--;
-    printf("Bus at position %d deleted.\n", pos);
+
+    printf("\nAfter deletion:");
+    displayFleet();
 }
 
-//06. Linear Search 
-int linearSearchByPlate(const char* plateNumber){
-    for(int i = 0; i < busCount; i++){
-        if(strcmp(fleet[i].plateNumber, plateNumber) == 0){
-            return i; 
+// 06. Linear search (by plate number)
+int linearSearchByPlate(const char *plate) {
+    int comparisons = 0;
+
+    for (int i = 0; i < busCount; i++) {
+        comparisons++;
+        if (strcmp(fleet[i].plateNumber, plate) == 0) {
+            printf("\nBus %s found at position %d (%d comparisons)\n",
+                   plate, i, comparisons);
+            return i;
         }
     }
-    return -1; 
+    printf("\nBus %s not found (%d comparisons)\n", plate, comparisons);
+    return -1;
 }
 
-//07. Binary Search
-static void sortByFare(void){
-    for(int i = 0; i < busCount - 1; i++){
-        for(int j = 0; j < busCount - i - 1; j++){
-            if(fleet[j].fare > fleet[j + 1].fare){
+// sorts the buses by fare, smallest first (bubble sort)
+static void sortByFare(void) {
+    for (int i = 0; i < busCount - 1; i++) {
+        for (int j = 0; j < busCount - 1 - i; j++) {
+            if (fleet[j].fare > fleet[j + 1].fare) {
                 Bus temp = fleet[j];
                 fleet[j] = fleet[j + 1];
                 fleet[j + 1] = temp;
@@ -158,70 +188,100 @@ static void sortByFare(void){
     }
 }
 
-int binarySearchByFare(float fare){
-    sortByFare();
-    int left = 0, right = busCount - 1;
-    while(left <= right){
-        int mid = left + (right - left) / 2;
-        if(fleet[mid].fare == fare){
-            return mid; 
-        } else if(fleet[mid].fare < fare){
-            left = mid + 1;
+// 07. Binary search (by fare)
+int binarySearchByFare(float fare) {
+    sortByFare();   // binary search only works on a sorted array
+    printf("\nFleet sorted by fare:");
+    displayFleet();
+
+    int low = 0;
+    int high = busCount - 1;
+
+    while (low <= high) {
+        int mid = (low + high) / 2;
+        printf("low=%d high=%d mid=%d fare at mid=%.2f\n",
+               low, high, mid, fleet[mid].fare);
+
+        if (fleet[mid].fare == fare) {
+            printf("Fare %.2f found at position %d\n", fare, mid);
+            return mid;
+        }
+        if (fleet[mid].fare < fare) {
+            low = mid + 1;
         } else {
-            right = mid - 1;
+            high = mid - 1;
         }
     }
-    return -1; 
+    printf("Fare %.2f not found\n", fare);
+    return -1;
 }
 
-//08. Array Updating
+// 08. Update
 void updateBus(int pos) {
-    if (pos < 0 || pos >= busCount) { printf("Invalid position.\n"); return; }
+    char temp[50];
 
-    printf("Current: %s | Capacity: %d | Fare: %.2f\n",
-           fleet[pos].plateNumber, fleet[pos].capacity, fleet[pos].fare);
-
-    printf("Enter new capacity: ");
-    if(scanf("%d", &fleet[pos].capacity) != 1) return;
-    printf("Enter new fare: ");
-    if(scanf("%f", &fleet[pos].fare) != 1) return;
-
-    printf("Updated: %s | Capacity: %d | Fare: %.2f\n",
-           fleet[pos].plateNumber, fleet[pos].capacity, fleet[pos].fare);
-}
-
-//09. Find Duplicates (Completed implementation)
-void findDuplicateFares(void){
-    int foundAny = 0;
-    printf("\nDuplicate Fares Found:\n");
-    
-    for(int i = 0; i < busCount; i++){
-        for(int j = i + 1; j < busCount; j++){
-            if(fleet[i].fare == fleet[j].fare){
-                printf("Bus %s and Bus %s share the same fare: %.2f\n", 
-                       fleet[i].plateNumber, fleet[j].plateNumber, fleet[i].fare);
-                foundAny = 1;
-            }
-        }
-    }
-    if(!foundAny){
-        printf("No duplicate fares found in the fleet.\n");
-    }
-}
-// 10. Reverse Fleet Array
-void reverseFleet(void) {
-    if (busCount <= 1) {
-        printf("Not enough buses to reverse the fleet.\n");
+    if (pos < 0 || pos >= busCount) {
+        printf("Invalid position.\n");
         return;
     }
-    int start = 0;
-    int end = busCount - 1;
-    while (start < end) {
-        Bus temp = fleet[start];
-        fleet[start] = fleet[end];
-        fleet[end] = temp;
-        start++;
-        end--;
+
+    printf("\nCurrent: %s | seats: %d | fare: %.2f\n",
+           fleet[pos].plateNumber, fleet[pos].capacity, fleet[pos].fare);
+
+    printf("New capacity: ");
+    readLine(temp, sizeof(temp));
+    fleet[pos].capacity = atoi(temp);
+
+    printf("New fare: ");
+    readLine(temp, sizeof(temp));
+    fleet[pos].fare = atof(temp);
+
+    printf("Updated: %s | seats: %d | fare: %.2f\n",
+           fleet[pos].plateNumber, fleet[pos].capacity, fleet[pos].fare);
+}
+
+// 09. Duplicate fares
+void findDuplicateFares(void) {
+    int checked[MAX] = {0};   // 1 means we already counted this bus
+    int found = 0;
+
+    printf("\nDuplicate fares:\n");
+    for (int i = 0; i < busCount; i++) {
+        if (checked[i] == 1) continue;
+
+        int count = 1;
+        for (int j = i + 1; j < busCount; j++) {
+            if (fleet[j].fare == fleet[i].fare) {
+                count++;
+                checked[j] = 1;
+            }
+        }
+        if (count > 1) {
+            printf("Fare %.2f appears %d times\n", fleet[i].fare, count);
+            found = 1;
+        }
     }
-    printf("The fleet array order has been reversed successfully.\n");
+    if (found == 0) {
+        printf("No duplicate fares.\n");
+    }
+}
+
+// 10. Reverse
+void reverseFleet(void) {
+    int left = 0;
+    int right = busCount - 1;
+
+    printf("\nOriginal array:");
+    displayFleet();
+
+    while (left < right) {
+        Bus temp = fleet[left];
+        fleet[left] = fleet[right];
+        fleet[right] = temp;
+        left++;
+        right--;
+    }
+
+    printf("\nReversed array:");
+    displayFleet();
 }
